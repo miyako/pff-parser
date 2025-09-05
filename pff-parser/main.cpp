@@ -10,7 +10,7 @@
 static void usage(void)
 {
     fprintf(stderr, "Usage:  pff-parser -r -i in -o out -\n\n");
-    fprintf(stderr, "text extractor for ost documents\n\n");
+    fprintf(stderr, "text extractor for ost/pst documents\n\n");
     fprintf(stderr, " -%c path: %s\n", 'i' , "document to parse");
     fprintf(stderr, " -%c path: %s\n", 'o' , "text output (default=stdout)");
     fprintf(stderr, " %c: %s\n", '-' , "use stdin for input");
@@ -74,16 +74,24 @@ int getopt(int argc, OPTARG_T *argv, OPTARG_T opts) {
 #define ARGS "i:o:-rh"
 #endif
 
+struct Folder {
+    std::string name;
+    std::vector<Folder> folders;
+    std::vector<std::string> messages;
+    std::vector<std::string> messages_html;
+    std::vector<std::string> messages_rtf;
+};
+
 struct Document {
     std::string type;
-    std::string text;
+    std::vector<Folder> folders;
 };
 
 #if defined(_WIN32)
 static int create_temp_file_path(std::wstring& path) {
     std::vector<wchar_t>buf(1024);
     if (GetTempPathW((DWORD)buf.size(), buf.data()) == 0) return -1;
-    if (GetTempFileNameW(buf.data(), L"ost", 0, buf.data()) == 0) return -1;
+    if (GetTempFileNameW(buf.data(), L"pff", 0, buf.data()) == 0) return -1;
     path = std::wstring(buf.data());
     return 0;
 }
@@ -92,7 +100,7 @@ static int create_temp_file_path(std::string& path) {
     const char *tmpdir = getenv("TMPDIR");
     if (!tmpdir) tmpdir = "/tmp";
     std::vector<char>buf(1024);
-    snprintf(buf.data(), buf.size(), "%sXXXXXX.ost", tmpdir);
+    snprintf(buf.data(), buf.size(), "pff%sXXXXXX", tmpdir);
     path = std::string(buf.data());
     int fd = mkstemp((char *)path.c_str());
     if (fd == -1) return -1;
@@ -101,17 +109,148 @@ static int create_temp_file_path(std::string& path) {
 }
 #endif
 
+static void __(Folder& folder, Json::Value& folders){
+
+    Json::Value folderNode(Json::objectValue);
+    folderNode["name"] = folder.name;
+    
+    Json::Value messagesNode(Json::arrayValue);
+    for (const auto &message : folder.messages) {
+        messagesNode.append(message);
+    }
+    folderNode["messages"] = messagesNode;
+    
+    Json::Value foldersNode(Json::arrayValue);
+    for (auto &_folder : folder.folders) {
+        __(_folder, foldersNode);
+    }
+    folderNode["folders"] = foldersNode;
+    folders.append(folderNode);
+}
+
+static void _(Folder& folder, std::string& text){
+    
+    for (const auto &message : folder.messages) {
+        text += message;
+    }
+    for (auto &_folder : folder.folders) {
+        _(_folder, text);
+    }
+}
+
 static void document_to_json(Document& document, std::string& text, bool rawText) {
     
     if(rawText){
-        text += document.text;
+        text = "";
+        for (auto &folder : document.folders) {
+            _(folder, text);
+        }
     }else{
         Json::Value documentNode(Json::objectValue);
         documentNode["type"] = document.type;
-        documentNode["text"] = document.text;
+                
+        Json::Value foldersNode(Json::arrayValue);
+        for (auto &folder : document.folders) {
+            __(folder, foldersNode);
+        }
+        documentNode["folders"] = foldersNode;
+        
         Json::StreamWriterBuilder writer;
         writer["indentation"] = "";
         text = Json::writeString(writer, documentNode);
+    }
+}
+
+static void process_folder(Folder& document,
+                           libpff_file_t *file,
+                           libpff_item_t *folder) {
+    
+    libpff_error_t *error = NULL;
+    int num_messages = 0;
+    int num_subfolders = 0;
+    if(libpff_folder_get_number_of_sub_messages(folder, &num_messages, &error) == 1){
+        if(libpff_folder_get_number_of_sub_folders(folder, &num_subfolders, &error) == 1){
+         
+            for (int i = 0; i < num_messages; ++i) {
+                libpff_item_t *sub_message = NULL;
+                if(libpff_folder_get_sub_message(folder, i, &sub_message, &error) == 1){
+                    size_t utf8_string_size = 0;
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_BODY_PLAIN_TEXT,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_BODY_PLAIN_TEXT,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            document.messages.push_back((const char *)buf.data());
+                        }
+                    }
+                    /*
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_BODY_HTML,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_BODY_HTML,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            document.messages_html.push_back((const char *)buf.data());
+                        }
+                    }
+                    */
+                    /*
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_BODY_COMPRESSED_RTF,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_BODY_COMPRESSED_RTF,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            document.messages_rtf.push_back((const char *)buf.data());
+                        }
+                    }
+                    */
+                }
+            }
+            for (int i = 0; i < num_subfolders; ++i) {
+                libpff_item_t *sub_folder = NULL;
+                if(libpff_folder_get_sub_folder(folder, i, &sub_folder, &error) == 1){
+                    size_t utf8_string_size = 0;
+                    if(libpff_folder_get_utf8_name_size(sub_folder, &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size * 1);
+                        if(libpff_folder_get_utf8_name(sub_folder, buf.data(), buf.size(), &error) == 1){
+                            Folder _folder;
+                            _folder.name = (const char *)buf.data();
+                            process_folder(_folder, file, sub_folder);
+                            document.folders.push_back(_folder);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+static void process_root_folder(Document& document,
+                           libpff_file_t *file,
+                           libpff_item_t *folder) {
+    
+    libpff_error_t *error = NULL;
+    int num_subfolders = 0;
+    if(libpff_folder_get_number_of_sub_folders(folder, &num_subfolders, &error) == 1){
+        for (int i = 0; i < num_subfolders; ++i) {
+            libpff_item_t *sub_folder = NULL;
+            if(libpff_folder_get_sub_folder(folder, i, &sub_folder, &error) == 1){
+                size_t utf8_string_size = 0;
+                if(libpff_folder_get_utf8_name_size(sub_folder, &utf8_string_size, &error) == 1){
+                    std::vector<uint8_t>buf(utf8_string_size * 1);
+                    if(libpff_folder_get_utf8_name(sub_folder, buf.data(), buf.size(), &error) == 1){
+                        Folder folder;
+                        folder.name = (const char *)buf.data();
+                        process_folder(folder, file, sub_folder);
+                        document.folders.push_back(folder);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -184,23 +323,32 @@ int main(int argc, OPTARG_T argv[]) {
 
     if (libpff_file_initialize(&file, &error) == 1) {            
         if (_libpff_file_open(file, filename, LIBPFF_OPEN_READ, &error) == 1) {
-            libpff_item_t *root_item = NULL;
-            document.type = "ost";
-            if (libpff_file_get_root_item(file, &root_item, &error) == 1) {
-                size_t body_size = 0;
-                    if (libpff_message_get_plain_text_body_size(root_item, &body_size, &error) == 1) {
-                        std::vector<uint8_t>buf(body_size + 1);
-                        if(libpff_message_get_plain_text_body(root_item, buf.data(), buf.size(), &error) == 1) {
-                            document.text = (const char *)buf.data();
-                            document_to_json(document, text, rawText);
-                        }
-                    }
-                std::cerr << "Failed to get OST body!" << std::endl;
+            uint8_t content_type = 0;
+            if(libpff_file_get_content_type(file, &content_type, &error) == 1){
+                switch (content_type) {
+                    case LIBPFF_FILE_CONTENT_TYPE_PST:
+                        document.type = "pst";
+                        break;
+                    case LIBPFF_FILE_CONTENT_TYPE_PAB:
+                        document.type = "pab";
+                        break;
+                    case LIBPFF_FILE_CONTENT_TYPE_OST:
+                        document.type = "ost";
+                        break;
+                }
+                libpff_item_t *root_folder = NULL;
+                if (libpff_file_get_root_folder(file, &root_folder, &error) == 1) {
+                    process_root_folder(document, file, root_folder);
+                    
+                    document_to_json(document, text, rawText);
+                }else{
+                    std::cerr << "Failed to get PFF root item!" << std::endl;
+                }
             }else{
-                std::cerr << "Failed to get OST root item!" << std::endl;
+                std::cerr << "Unknown file content type!" << std::endl;
             }
         }else{
-            std::cerr << "Failed to load OST file!" << std::endl;
+            std::cerr << "Failed to load PFF file!" << std::endl;
         }
         libpff_file_free(&file, &error);
     }

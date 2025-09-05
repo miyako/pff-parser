@@ -57,7 +57,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/miyako/Desktop/1.msg"
+            argument = "/Users/miyako/Desktop/enron.pst"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

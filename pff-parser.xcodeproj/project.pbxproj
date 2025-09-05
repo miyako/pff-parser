@@ -35,7 +35,7 @@
 		D157F3112E612DD500DF46D3 /* libiconv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiconv.a; path = a/libiconv.a; sourceTree = "<group>"; };
 		D157F31B2E613ACD00DF46D3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D16478942E611F7700FC9914 /* pff-parser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "pff-parser"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "pdfium-config.xcconfig"; sourceTree = "<group>"; };
+		D164789E2E61216B00FC9914 /* pff-config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "pff-config.xcconfig"; sourceTree = "<group>"; };
 		D1DB33D12E67E67D00C843BE /* libpdfium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpdfium.dylib; path = macOS/libpdfium.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,7 +81,7 @@
 		D164788B2E611F7700FC9914 = {
 			isa = PBXGroup;
 			children = (
-				D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */,
+				D164789E2E61216B00FC9914 /* pff-config.xcconfig */,
 				D16478962E611F7700FC9914 /* pff-parser */,
 				D157F30B2E612DD500DF46D3 /* Frameworks */,
 				D16478952E611F7700FC9914 /* Products */,
@@ -167,10 +167,10 @@
 /* Begin XCBuildConfiguration section */
 		D16478992E611F7700FC9914 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */;
+			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -231,10 +231,10 @@
 		};
 		D164789A2E611F7700FC9914 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */;
+			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = x86_64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -288,7 +288,7 @@
 		};
 		D164789C2E611F7700FC9914 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */;
+			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				CODE_SIGN_STYLE = Automatic;
@@ -308,7 +308,7 @@
 		};
 		D164789D2E611F7700FC9914 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D164789E2E61216B00FC9914 /* pdfium-config.xcconfig */;
+			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD)";
 				CODE_SIGN_STYLE = Automatic;
