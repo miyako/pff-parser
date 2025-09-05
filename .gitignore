@@ -1,2 +1,4 @@
 .build/*
 macOS/pff-parser.dSYM*
+.vs/*
+pff-parser/x64/Release/*

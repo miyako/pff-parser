@@ -86,7 +86,7 @@ struct Document {
 #if defined(_WIN32)
 static int create_temp_file_path(std::wstring& path) {
     std::vector<wchar_t>buf(1024);
-    if (GetTempPathW(buf.size(), buf.data()) == 0) return -1;
+    if (GetTempPathW((DWORD)buf.size(), buf.data()) == 0) return -1;
     if (GetTempFileNameW(buf.data(), L"msg", 0, buf.data()) == 0) return -1;
     path = std::wstring(buf.data());
     return 0;
@@ -238,10 +238,6 @@ int main(int argc, OPTARG_T argv[]) {
             fclose(f);
         }
     }
-
-    end:
-    
-
     
     return 0;
 }
