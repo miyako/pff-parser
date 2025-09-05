@@ -1,7 +1,7 @@
 /*
  * Definitions for libpff
  *
- * Copyright (C) 2008-2023, Joachim Metz <joachim.metz@gmail.com>
+ * Copyright (C) 2008-2021, Joachim Metz <joachim.metz@gmail.com>
  *
  * Refer to AUTHORS for acknowledgements.
  *
@@ -24,11 +24,11 @@
 
 #include <libpff/types.h>
 
-#define LIBPFF_VERSION					20231205
+#define LIBPFF_VERSION					20211114
 
 /* The version string
  */
-#define LIBPFF_VERSION_STRING				"20231205"
+#define LIBPFF_VERSION_STRING				"20211114"
 
 /* The access flags definitions
  * bit 1        set to 1 for read access
