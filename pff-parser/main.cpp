@@ -10,7 +10,7 @@
 static void usage(void)
 {
     fprintf(stderr, "Usage:  pff-parser -r -i in -o out -\n\n");
-    fprintf(stderr, "text extractor for msg documents\n\n");
+    fprintf(stderr, "text extractor for ost documents\n\n");
     fprintf(stderr, " -%c path: %s\n", 'i' , "document to parse");
     fprintf(stderr, " -%c path: %s\n", 'o' , "text output (default=stdout)");
     fprintf(stderr, " %c: %s\n", '-' , "use stdin for input");
@@ -74,20 +74,16 @@ int getopt(int argc, OPTARG_T *argv, OPTARG_T opts) {
 #define ARGS "i:o:-rh"
 #endif
 
-struct Page {
-    std::string text;
-};
-
 struct Document {
     std::string type;
-    std::vector<Page> pages;
+    std::string text;
 };
 
 #if defined(_WIN32)
 static int create_temp_file_path(std::wstring& path) {
     std::vector<wchar_t>buf(1024);
     if (GetTempPathW((DWORD)buf.size(), buf.data()) == 0) return -1;
-    if (GetTempFileNameW(buf.data(), L"msg", 0, buf.data()) == 0) return -1;
+    if (GetTempFileNameW(buf.data(), L"ost", 0, buf.data()) == 0) return -1;
     path = std::wstring(buf.data());
     return 0;
 }
@@ -96,7 +92,7 @@ static int create_temp_file_path(std::string& path) {
     const char *tmpdir = getenv("TMPDIR");
     if (!tmpdir) tmpdir = "/tmp";
     std::vector<char>buf(1024);
-    snprintf(buf.data(), buf.size(), "%sXXXXXX.msg", tmpdir);
+    snprintf(buf.data(), buf.size(), "%sXXXXXX.ost", tmpdir);
     path = std::string(buf.data());
     int fd = mkstemp((char *)path.c_str());
     if (fd == -1) return -1;
@@ -108,25 +104,16 @@ static int create_temp_file_path(std::string& path) {
 static void document_to_json(Document& document, std::string& text, bool rawText) {
     
     if(rawText){
-        text = "";
-        for (const auto &page : document.pages) {
-            text += page.text;
-        }
+        text += document.text;
     }else{
         Json::Value documentNode(Json::objectValue);
         documentNode["type"] = document.type;
-        documentNode["pages"] = Json::arrayValue;
-        
-        for (const auto &page : document.pages) {
-            documentNode["pages"].append(page.text);
-        }
+        documentNode["text"] = document.text;
         Json::StreamWriterBuilder writer;
         writer["indentation"] = "";
         text = Json::writeString(writer, documentNode);
     }
 }
-
-
 
 int main(int argc, OPTARG_T argv[]) {
         
@@ -193,34 +180,27 @@ int main(int argc, OPTARG_T argv[]) {
     libpff_file_t *file = NULL;
     libpff_error_t *error = NULL;
     
-    if (libpff_file_initialize(&file, &error) == 1) {
-        /*
-        size64_t size = 0;
-        libpff_file_get_size(file, &size, &error);
-        uint8_t type = 0;
-        libpff_file_get_type(file, &type, &error);
-        */
-        int ascii_codepage = 0;
-        libpff_file_set_ascii_codepage(file, 20127, &error);
-        libpff_file_get_ascii_codepage(file, &ascii_codepage, &error);
-        
-            
+    Document document;
+
+    if (libpff_file_initialize(&file, &error) == 1) {            
         if (_libpff_file_open(file, filename, LIBPFF_OPEN_READ, &error) == 1) {
             libpff_item_t *root_item = NULL;
+            document.type = "ost";
             if (libpff_file_get_root_item(file, &root_item, &error) == 1) {
                 size_t body_size = 0;
                     if (libpff_message_get_plain_text_body_size(root_item, &body_size, &error) == 1) {
                         std::vector<uint8_t>buf(body_size + 1);
                         if(libpff_message_get_plain_text_body(root_item, buf.data(), buf.size(), &error) == 1) {
-                            text = (const char *)buf.data();
+                            document.text = (const char *)buf.data();
+                            document_to_json(document, text, rawText);
                         }
                     }
-                std::cerr << "Failed to get MSG body!" << std::endl;
+                std::cerr << "Failed to get OST body!" << std::endl;
             }else{
-                std::cerr << "Failed to get MSG root item!" << std::endl;
+                std::cerr << "Failed to get OST root item!" << std::endl;
             }
         }else{
-            std::cerr << "Failed to load MSG file!" << std::endl;
+            std::cerr << "Failed to load OST file!" << std::endl;
         }
         libpff_file_free(&file, &error);
     }
