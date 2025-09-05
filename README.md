@@ -8,7 +8,7 @@ CLI tool to extract text from PST
 ## usage
 
 ```
-opc-parser -i example.pst -o example.json
+pff-parser -i example.pst -o example.json
 
 -i path  : document to parse
 -o path  : text output (default=stdout)
