@@ -5,7 +5,7 @@
 ### Dependencies and Licensing
 
 * the source code of this CLI tool is licensed under the MIT license.
-* see [libpff](https://github.com/libyal/libpff/blob/main/COPYING) for the licensing of **pdfium** (GPL-3.0).
+* see [libpff](https://github.com/libyal/libpff/blob/main/COPYING) for the licensing of **libpff** (GPL-3.0).
 
 # pff-parser
 CLI tool to extract text from PST
