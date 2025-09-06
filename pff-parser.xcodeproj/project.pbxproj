@@ -170,7 +170,7 @@
 			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = x86_64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -234,7 +234,7 @@
 			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = x86_64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -290,7 +290,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
-				ARCHS = x86_64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y69CWUC25B;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -310,7 +310,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D164789E2E61216B00FC9914 /* pff-config.xcconfig */;
 			buildSettings = {
-				ARCHS = x86_64;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Y69CWUC25B;
 				ENABLE_HARDENED_RUNTIME = YES;

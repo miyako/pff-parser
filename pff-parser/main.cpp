@@ -74,11 +74,18 @@ int getopt(int argc, OPTARG_T *argv, OPTARG_T opts) {
 #define ARGS "i:o:-rh"
 #endif
 
+struct Account {
+    std::string name;
+    std::string address;
+};
+
 struct Message {
     std::string subject;
     std::string text;
     std::string html;
     std::string rtf;
+    Account sender;
+    Account recipient;
 };
 
 struct Folder {
@@ -121,9 +128,18 @@ static void __(Folder& folder, Json::Value& folders){
     
     Json::Value messagesNode(Json::arrayValue);
     for (const auto &message : folder.messages) {
+        Json::Value senderNode(Json::objectValue);
+        senderNode["name"] = message.sender.name;
+        senderNode["address"] = message.sender.address;
+        Json::Value recipientNode(Json::objectValue);
+        recipientNode["name"] = message.recipient.name;
+        recipientNode["address"] = message.recipient.address;
+        
         Json::Value messageNode(Json::objectValue);
         messageNode["subject"] = message.subject;
         messageNode["text"] = message.text;
+        messageNode["sender"] = senderNode;
+//        messageNode["recipient"] = recipientNode;
         messagesNode.append(messageNode);
     }
     folderNode["messages"] = messagesNode;
@@ -139,6 +155,10 @@ static void __(Folder& folder, Json::Value& folders){
 static void _(Folder& folder, std::string& text){
     
     for (const auto &message : folder.messages) {
+        text += message.sender.name;
+        text += message.sender.address;
+//        text += message.recipient.name;
+//        text += message.recipient.address;
         text += message.subject;
         text += message.text;
     }
@@ -197,6 +217,50 @@ static void process_folder(Folder& document,
                             message.subject = subject;
                         }
                     }
+                    Account sender;
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_NAME,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            sender.name = (const char *)buf.data();
+                        }
+                    }
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_SENDER_EMAIL_ADDRESS,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            sender.address = (const char *)buf.data();
+                        }
+                    }
+                    Account recipient;
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_NAME,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_NAME,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            recipient.name = (const char *)buf.data();
+                        }
+                    }
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_EMAIL_ADDRESS,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_RECEIVED_BY_EMAIL_ADDRESS,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            recipient.address = (const char *)buf.data();
+                        }
+                    }
+                    
+                    
                     
                     if(libpff_message_get_entry_value_utf8_string_size(sub_message,
                                                                        LIBPFF_ENTRY_TYPE_MESSAGE_BODY_PLAIN_TEXT,
@@ -208,7 +272,8 @@ static void process_folder(Folder& document,
                             message.text = (const char *)buf.data();
                         }
                     }
-                    
+                    message.sender = sender;
+                    message.recipient = recipient;
                     
                     /*
                     if(libpff_message_get_entry_value_utf8_string_size(sub_message,
