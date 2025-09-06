@@ -23,7 +23,19 @@ pff-parser -i example.pst -o example.json
     "type: "ost" | "pst" | "pab",
     "folder": [
         {
-            "folders": [{name: "", messages: [], folders: []}]
+            "folders": [
+                {
+                    name: "name",
+                    messages: [
+                        {
+                            sender: {name: "name", address: "address"},
+                            subject: "subject",
+                            text: "text",
+                        }
+                        ],
+                    folders: []
+                }
+            ]
         }
     ]
 }
