@@ -2,3 +2,4 @@
 macOS/pff-parser.dSYM*
 .vs/*
 pff-parser/x64/Release/*
+x64/Release/pff-parser.pdb
