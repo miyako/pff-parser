@@ -74,12 +74,17 @@ int getopt(int argc, OPTARG_T *argv, OPTARG_T opts) {
 #define ARGS "i:o:-rh"
 #endif
 
+struct Message {
+    std::string subject;
+    std::string text;
+    std::string html;
+    std::string rtf;
+};
+
 struct Folder {
     std::string name;
     std::vector<Folder> folders;
-    std::vector<std::string> messages;
-    std::vector<std::string> messages_html;
-    std::vector<std::string> messages_rtf;
+    std::vector<Message> messages;
 };
 
 struct Document {
@@ -116,7 +121,10 @@ static void __(Folder& folder, Json::Value& folders){
     
     Json::Value messagesNode(Json::arrayValue);
     for (const auto &message : folder.messages) {
-        messagesNode.append(message);
+        Json::Value messageNode(Json::objectValue);
+        messageNode["subject"] = message.subject;
+        messageNode["text"] = message.text;
+        messagesNode.append(messageNode);
     }
     folderNode["messages"] = messagesNode;
     
@@ -131,7 +139,8 @@ static void __(Folder& folder, Json::Value& folders){
 static void _(Folder& folder, std::string& text){
     
     for (const auto &message : folder.messages) {
-        text += message;
+        text += message.subject;
+        text += message.text;
     }
     for (auto &_folder : folder.folders) {
         _(_folder, text);
@@ -174,7 +183,21 @@ static void process_folder(Folder& document,
             for (int i = 0; i < num_messages; ++i) {
                 libpff_item_t *sub_message = NULL;
                 if(libpff_folder_get_sub_message(folder, i, &sub_message, &error) == 1){
+                    Message message;
                     size_t utf8_string_size = 0;
+                    if(libpff_message_get_entry_value_utf8_string_size(sub_message,
+                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
+                                                                       &utf8_string_size, &error) == 1){
+                        std::vector<uint8_t>buf(utf8_string_size + 1);
+                        if(libpff_message_get_entry_value_utf8_string(sub_message,
+                                                                      LIBPFF_ENTRY_TYPE_MESSAGE_SUBJECT,
+                                                                       buf.data(), buf.size(), &error) == 1){
+                            std::string subject = (const char *)buf.data();
+                            subject.erase(std::remove(subject.begin(), subject.end(), '\1'), subject.end());
+                            message.subject = subject;
+                        }
+                    }
+                    
                     if(libpff_message_get_entry_value_utf8_string_size(sub_message,
                                                                        LIBPFF_ENTRY_TYPE_MESSAGE_BODY_PLAIN_TEXT,
                                                                        &utf8_string_size, &error) == 1){
@@ -182,9 +205,11 @@ static void process_folder(Folder& document,
                         if(libpff_message_get_entry_value_utf8_string(sub_message,
                                                                       LIBPFF_ENTRY_TYPE_MESSAGE_BODY_PLAIN_TEXT,
                                                                        buf.data(), buf.size(), &error) == 1){
-                            document.messages.push_back((const char *)buf.data());
+                            message.text = (const char *)buf.data();
                         }
                     }
+                    
+                    
                     /*
                     if(libpff_message_get_entry_value_utf8_string_size(sub_message,
                                                                        LIBPFF_ENTRY_TYPE_MESSAGE_BODY_HTML,
@@ -209,6 +234,7 @@ static void process_folder(Folder& document,
                         }
                     }
                     */
+                    document.messages.push_back(message);
                 }
             }
             for (int i = 0; i < num_subfolders; ++i) {

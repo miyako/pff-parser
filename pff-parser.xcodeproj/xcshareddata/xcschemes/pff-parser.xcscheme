@@ -31,7 +31,7 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -57,7 +57,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/miyako/Desktop/enron.pst"
+            argument = "/Users/miyako/Documents/GitHub/pff-parser/examples/enron.pst"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -73,7 +73,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/miyako/Desktop/msg.txt"
+            argument = "/Users/miyako/Desktop/enron.pst.txt"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
