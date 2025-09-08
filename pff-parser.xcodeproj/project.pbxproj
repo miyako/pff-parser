@@ -26,17 +26,10 @@
 
 /* Begin PBXFileReference section */
 		D10C5CAB2E6A700500D120DE /* libpff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpff.a; path = a/libpff.a; sourceTree = "<group>"; };
-		D10C5CAE2E6A8A3500D120DE /* libpff.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpff.dylib; path = macOS/libpff.dylib; sourceTree = "<group>"; };
 		D157F30C2E612DD500DF46D3 /* libjsoncpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjsoncpp.a; path = a/libjsoncpp.a; sourceTree = "<group>"; };
-		D157F30D2E612DD500DF46D3 /* libopc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopc.a; path = a/libopc.a; sourceTree = "<group>"; };
-		D157F30E2E612DD500DF46D3 /* libplib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplib.a; path = a/libplib.a; sourceTree = "<group>"; };
-		D157F30F2E612DD500DF46D3 /* libxml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libxml2.a; path = a/libxml2.a; sourceTree = "<group>"; };
-		D157F3102E612DD500DF46D3 /* libmce.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmce.a; path = a/libmce.a; sourceTree = "<group>"; };
-		D157F3112E612DD500DF46D3 /* libiconv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiconv.a; path = a/libiconv.a; sourceTree = "<group>"; };
 		D157F31B2E613ACD00DF46D3 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		D16478942E611F7700FC9914 /* pff-parser */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "pff-parser"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D164789E2E61216B00FC9914 /* pff-config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "pff-config.xcconfig"; sourceTree = "<group>"; };
-		D1DB33D12E67E67D00C843BE /* libpdfium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpdfium.dylib; path = macOS/libpdfium.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -64,16 +57,9 @@
 		D157F30B2E612DD500DF46D3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D10C5CAE2E6A8A3500D120DE /* libpff.dylib */,
 				D10C5CAB2E6A700500D120DE /* libpff.a */,
-				D1DB33D12E67E67D00C843BE /* libpdfium.dylib */,
 				D157F31B2E613ACD00DF46D3 /* libz.tbd */,
-				D157F3112E612DD500DF46D3 /* libiconv.a */,
 				D157F30C2E612DD500DF46D3 /* libjsoncpp.a */,
-				D157F3102E612DD500DF46D3 /* libmce.a */,
-				D157F30D2E612DD500DF46D3 /* libopc.a */,
-				D157F30E2E612DD500DF46D3 /* libplib.a */,
-				D157F30F2E612DD500DF46D3 /* libxml2.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
