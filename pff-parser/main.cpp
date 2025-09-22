@@ -101,10 +101,15 @@ struct Document {
 
 #if defined(_WIN32)
 static int create_temp_file_path(std::wstring& path) {
-    std::vector<wchar_t>buf(1024);
-    if (GetTempPathW((DWORD)buf.size(), buf.data()) == 0) return -1;
-    if (GetTempFileNameW(buf.data(), L"pff", 0, buf.data()) == 0) return -1;
-    path = std::wstring(buf.data());
+    std::vector<wchar_t> dirBuf(MAX_PATH);
+    DWORD dirLen = GetTempPathW((DWORD)dirBuf.size(), dirBuf.data());
+    if (dirLen == 0 || dirLen > dirBuf.size()) return -1;
+
+    std::vector<wchar_t> fileBuf(MAX_PATH);
+    if (GetTempFileNameW(dirBuf.data(), L"pff", 0, fileBuf.data()) == 0)
+        return -1;
+
+    path.assign(fileBuf.data());
     return 0;
 }
 #else
@@ -112,7 +117,7 @@ static int create_temp_file_path(std::string& path) {
     const char *tmpdir = getenv("TMPDIR");
     if (!tmpdir) tmpdir = "/tmp";
     std::vector<char>buf(1024);
-    snprintf(buf.data(), buf.size(), "pff%sXXXXXX", tmpdir);
+    snprintf(buf.data(), buf.size(), "%s/pffXXXXXX", tmpdir);
     path = std::string(buf.data());
     int fd = mkstemp((char *)path.c_str());
     if (fd == -1) return -1;
@@ -372,11 +377,12 @@ int main(int argc, OPTARG_T argv[]) {
                 break;
             case '-':
             {
-                _fseek(stdin, 0, SEEK_END);
-                size_t len = (size_t)_ftell(stdin);
-                _fseek(stdin, 0, SEEK_SET);
-                msg_data.resize(len);
-                fread(msg_data.data(), 1, msg_data.size(), stdin);
+                std::vector<uint8_t> buf(BUFLEN);
+                size_t n;
+                
+                while ((n = fread(buf.data(), 1, buf.size(), stdin)) > 0) {
+                    msg_data.insert(msg_data.end(), buf.begin(), buf.begin() + n);
+                }
                 if(!create_temp_file_path(temp_input_path)){
                     FILE *f = _fopen(temp_input_path.c_str(), _wb);
                     if(f) {

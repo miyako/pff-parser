@@ -11,7 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#define BUFLEN 8192
+#define BUFLEN 4096
 
 #include "libpff.h"
 
